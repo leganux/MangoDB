@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MangoDB Example</title>
+</head>
+<body>
+    <h1>MangoDB Example</h1>
+    <div id="output"></div>
+
+    <script src="MangoDB.js"></script>
+    <script>
+        // Initialize MangoDB with localStorage (default) or 'indexedDB'
+        const db = new MangoDB('localStorage');
+        
+        // Get a collection
+        const users = db.collection('users');
+
+        async function runExample() {
+            const output = document.getElementById('output');
+            const log = (message) => {
+                output.innerHTML += `<p>${message}</p>`;
+            };
+
+            try {
+                // Create multiple users at once
+                const newUsers = await users.createMany([
+                    { name: 'John', age: 30, city: 'New York' },
+                    { name: 'Jane', age: 25, city: 'Los Angeles' },
+                    { name: 'Bob', age: 35, city: 'Chicago' }
+                ]);
+                log(`Created ${newUsers.length} users: ${JSON.stringify(newUsers, null, 2)}`);
+
+                // Find all users
+                const allUsers = await users.find();
+                log(`Found ${allUsers.length} users: ${JSON.stringify(allUsers, null, 2)}`);
+
+                // Find users with query operators
+                const youngUsers = await users.find(
+                    { 
+                        name: { $exists: true },
+                        age: { $lt: 30 },
+                        city: { $regex: '^L' }  // Cities starting with L
+                    }
+                );
+                log(`Young users in L cities: ${JSON.stringify(youngUsers, null, 2)}`);
+
+                // Find with field selection
+                const selectedUsers = await users.find(
+                    { age: { $gte: 25 } },
+                    { select: { name: 1, age: 1 } }
+                );
+                log(`Users with selected fields: ${JSON.stringify(selectedUsers, null, 2)}`);
+
+                // Find one user with exact match
+                const john = await users.findOne({ name: 'John', age: 30 });
+                log(`Found John: ${JSON.stringify(john, null, 2)}`);
+
+                // Find by ID with field selection
+                const userById = await users.findById(john._id, { name: 1, city: 1 });
+                log(`Found user by ID (name and city): ${JSON.stringify(userById, null, 2)}`);
+
+                // Update with operators
+                const updateResult = await users.update(
+                    { name: 'Jane' },
+                    { 
+                        $set: { city: 'San Francisco' },
+                        $inc: { age: 1 }
+                    }
+                );
+                log(`Updated user: ${JSON.stringify(updateResult, null, 2)}`);
+
+                // Find with sort and pagination
+                const sortedUsers = await users.find(
+                    {},
+                    { sort: { age: 'asc' }, limit: 2, skip: 1 }
+                );
+                log(`Sorted and paginated users: ${JSON.stringify(sortedUsers, null, 2)}`);
+
+                // Aggregate example - group by city with counts
+                const cityStats = await users.aggregate([
+                    { $group: { _id: '$city' } },
+                    { $sort: { '_id': 1 } }
+                ]);
+                log(`City stats: ${JSON.stringify(cityStats, null, 2)}`);
+
+                // Remove a user
+                const removeResult = await users.remove({ name: 'Bob' });
+                log(`Removed ${removeResult.deletedCount} user(s)`);
+
+                // Final count
+                const finalUsers = await users.find();
+                log(`Final user count: ${finalUsers.length}`);
+
+            } catch (error) {
+                log(`Error: ${error.message}`);
+            }
+        }
+
+        // Run the example
+        runExample();
+    </script>
+</body>
+</html>
