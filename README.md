@@ -1,5 +1,9 @@
 # MangoDB
 
+<center>
+<img width="200px" src='https://www.svgrepo.com/show/397130/mango.svg'>
+</center>
+
 A lightweight client-side database library that provides MongoDB-like functionality using localStorage or IndexedDB for storage.
 
 ## Features
