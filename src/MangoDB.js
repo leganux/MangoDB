@@ -209,7 +209,7 @@ class Collection {
     const timestamp = Date.now().toString(16);
     
     // Generate 3 random characters and convert to hex
-    const randomStr = Array(3)
+    const randomStr = Array(7)
       .fill(0)
       .map(() => Math.floor(Math.random() * 16).toString(16))
       .join('');

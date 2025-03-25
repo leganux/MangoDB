@@ -12,7 +12,7 @@
     <script src="MangoDB.js"></script>
     <script>
         // Initialize MangoDB with localStorage (default) or 'indexedDB'
-        const db = new MangoDB('localStorage');
+        const db = new MangoDB('indexedDB');
         
         // Get a collection
         const users = db.collection('users');
